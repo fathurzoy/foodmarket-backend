@@ -7,9 +7,11 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -121,6 +123,36 @@ class UserController extends Controller
         $user->update($data);
 
         return ResponseFormatter::success($user, 'Profile Updated');
+    }
+
+    // update photo
+    public function updatePhoto(Request $request)
+    {
+        //validator illuminate
+        $validator = Validator::make($request->all(),[
+            'file' => 'required|imaeg|max:2048'
+        ]);
+    
+        if($validator->fails())
+        {
+            return ResponseFormatter::error(
+                ['error' => $validator->errors()],
+                'Update photo fails',
+                401
+            );
+        }
+
+        if($request->file('file'))
+        {
+            $file = $request->file->store('assets/user', 'public');
+
+            //Simpan foto ke database (urlnya)
+            $user = Auth::user();
+            $user->profile_photo_path = $file;
+            $user->update();
+
+            return ResponseFormatter::success([$file], 'File successfully uploaded');
+        }
     }
 
 }
