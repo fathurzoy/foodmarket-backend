@@ -80,7 +80,7 @@ class FoodController extends Controller
 
         return ResponseFormatter::success(
             $food->paginate($limit),
-            'Data list product berhasil diambil'
+            'Data list produk berhasil diambil'
         );
         
     }
